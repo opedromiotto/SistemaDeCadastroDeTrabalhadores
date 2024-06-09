@@ -1,152 +1,94 @@
 from datetime import date
+import funcoes
 import os
-
-def valida_ano_nasc(ano_nascimento):
-    ano_atual = date.today().year
-
-    if str(ano_nascimento).isdigit(): 
-        if ano_atual - ano_nascimento < 14 or ano_nascimento < 1900:
-            return False
-        return True
-    return False
-
-def valida_ctps(ctps, dados_trabalhador):
-    for t in dados_trabalhador:
-        for v in t.values():
-            if ctps == v:
-                return False
-    if str(ctps).isdigit() and len(ctps) == 11:
-        return True
-    return False
-
-def valida_contratacao(ano_contratacao, ano_nascimento):
-    if str(ano_contratacao).isdigit():
-        if int(ano_contratacao) > date.today().year or int(ano_contratacao) <= int(ano_nascimento) or int(ano_contratacao) - int(ano_nascimento) < 14:
-            return False
-        return True
-    return False
-
-def valida_resposta(resposta):
-    if resposta not in ["1", "2"]:
-        return False
-    return True
-
-def mostra_dados(dados_trabalhador):
-    os.system('cls')
-    print(f"=-=-=-=-=-=- TRABALHADORES CADASTRADOS =-=-=-=-=-=-")
-    for t in dados_trabalhador:
-        for k, v in t.items():
-                if k == "CTPS" and v != "0":
-                    print(f"{k} = {'***' + '.' + v[3:6] + '.' + v[6:9] + '-' + '**'}")
-                else:
-                    print(f"{k} = {v}")
-        print("-" * 51)
-    print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
-
-def visualizar_trabalhador(dados_trabalhador, ctps):
-    os.system('cls')
-    encontrado = False
-    for t in dados_trabalhador:
-        if ctps == t["CTPS"]:
-            print(f"=-=-=-=-=-=- DADOS DO TRABALHADOR =-=-=-=-=-=-")
-            for k, v in t.items():
-                if  k == "CTPS" and v != "0":
-                    print(f"{k} = {'***' + '.' + v[3:6] + '.' + v[6:9] + '-' + '**'}")
-                else:
-                    print(f"{k} = {v}")
-            print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=")
-            encontrado = True
-            break
-    if not encontrado:
-        print("Trabalhador não encontrado.")
-
-def menu():
-    print('''
-\tMENU
-Digite 1 - Para ver todos os trabalhadores
-Digite 2 - Para ver um trabalhador específico
-Digite 3 - Para sair''')
-
-def valida_resposta_menu(resposta):
-    if resposta not in ["1", "2", "3"]:
-        return False
-    return True
 
 trabalhador = {}
 dados_trabalhador = []
 
-while True:
+continuar = True
+while continuar:
     nome = input("Nome: ").strip().title()
-    while True:
-        ano_nascimento = int(input("Ano de nascimento: "))
-        if valida_ano_nasc(ano_nascimento):
-            idade = date.today().year - ano_nascimento
+
+    #verifica se o ano de nascimento é válido através da função valida_ano_nasc
+    ano_valido = False
+    while not ano_valido:
+        ano_nasc = int(input("Ano de nascimento: "))
+        if funcoes.valida_ano_nasc(ano_nasc):
+            idade = date.today().year - ano_nasc
+            ano_valido = True
         else:
             print("Ano da nascimento inválido, tente novamente")
-            continue
-        while True:
-            ctps = str(input("Informe o número de sua carteira de trabalho (apenas números): "))
-            if ctps == "0":
-                trabalhador["Nome"] = nome
-                trabalhador["Idade"] = idade
-                trabalhador["CTPS"] = ctps
-                dados_trabalhador.append(trabalhador.copy())
-                trabalhador.clear()
-                break
-            elif valida_ctps(ctps, dados_trabalhador):
-                while True:
-                    ano_contratacao = int(input("Ano de contratação: "))
-                    if valida_contratacao(ano_contratacao, ano_nascimento):
-                        break
+
+    #verifica se o o ctps informado é igual a 0, se for, vamos direto p menu
+    ctps_valido = False
+    while not ctps_valido:
+        ctps = str(input("Informe o número de sua carteira de trabalho, apenas números: "))
+        if ctps == "0":
+            trabalhador["Nome"] = nome
+            trabalhador["Idade"] = idade
+            trabalhador["CTPS"] = ctps
+            dados_trabalhador.append(trabalhador.copy())
+            trabalhador.clear()
+            ctps_valido = True
+
+    #verifica se o ctps é válido
+        elif funcoes.valida_ctps(ctps, dados_trabalhador):
+            ctps_valido = True
+
+    #se for, pedimos e verificamos se o ano de contratação é válido através da função valida_contratacao
+            ano_contratacao_valido = False
+            while not ano_contratacao_valido:
+                ano_contratacao = int(input("Ano de contratação: "))
+                if funcoes.valida_contratacao(ano_contratacao, ano_nasc):
+                    ano_contratacao_valido = True
+                else:
+                    print("Ano de contratação inválido, tente novamente")
                     continue
-                while True:
-                    salario = float(input("Salário: "))
+
+    #pedimos o salário e verificamos se é menor qur R$ 1,00
+                salario_valido = False
+                while not salario_valido:
+                    salario = float(input("Salário: R$ "))
                     if salario < 1:
                         print("Salário inválido, tente novamente")
-                        continue
-                    break
+    #se tudo estiver correto, adicionamos os dados do usuário em um dicionário e depois em uma lista composta de dicionários
+                    else:
+                        trabalhador["Nome"] = nome
+                        trabalhador["Idade"] = idade
+                        trabalhador["CTPS"] = ctps
+                        trabalhador["Ano de contratação"] = ano_contratacao
+                        trabalhador["Salário"] = salario
+                        trabalhador["Aposentadoria"] = ano_contratacao + 35
+                        dados_trabalhador.append(trabalhador.copy())
+                        trabalhador.clear()
+                        salario_valido = True
+        else:
+            print("CTPS inválido, tente novamente")
 
-                trabalhador["Nome"] = nome
-                trabalhador["Idade"] = idade
-                trabalhador["CTPS"] = ctps
-                trabalhador["Ano de contratação"] = ano_contratacao
-                trabalhador["Salário"] = salario
-                trabalhador["Aposentadoria"] = ano_contratacao + 35
-                dados_trabalhador.append(trabalhador.copy())
-                trabalhador.clear()
-                break
-            else:
-                print("Número de carteira de trabalho inválido")
-                continue
-        break
+    resposta = input("\nDeseja informar mais uma pessoa?\nPressione 1 - Para sim\nPressione 2 - Para não\nSua escolha: ")
+    if funcoes.valida_resposta(resposta):
+        if resposta == "2":
+            continuar = False
+        else:
+            os.system('cls')
 
-    while True:
-        resposta = input("Deseja informar mais uma pessoa?\nPressione 1 - Para sim\nPressione 2 - Para não\nSua escolha: ")
-        if valida_resposta(resposta):
-            break
-        print("Opção inválida, tente novamente")
-        continue
-    if resposta == "1":
-        continue
-    else:
-        break
+os.system('cls')
+continuar = True
+while continuar:
+    funcoes.menu()
+    resposta = input("Informe sua escolha: ")
+    if funcoes.valida_resposta_menu(resposta):
+        if resposta == "1":
+            funcoes.mostra_dados(dados_trabalhador)
+            continue
+        elif resposta == "2":
+            os.system('cls')
+            busca = input("Informe o CTPS procurado: ")
+            funcoes.visualizar_trabalhador(dados_trabalhador, busca)
+            continue
+        else:
+            print("Saindo do programa\n")
+            continuar = False
 
-while True:
-    while True:
-        menu()
-        resposta = input("Sua escolha: ")
-        if valida_resposta_menu(resposta):
-            break
-        print("Opção inválida, tente novamente")
-        continue
 
-    if resposta == "1":
-        mostra_dados(dados_trabalhador)
-        continue
-    elif resposta == "2":
-        busca = input("Informe o CTPS procurado: ")
-        visualizar_trabalhador(dados_trabalhador, busca)
-        continue
-    else:
-        print("Saindo do programa...")
-        break
+    
