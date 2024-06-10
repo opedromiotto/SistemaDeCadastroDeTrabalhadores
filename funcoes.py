@@ -4,8 +4,8 @@ from datetime import date
 def valida_ano_nasc(ano_nascimento):
     ano_atual = date.today().year
 
-    if str(ano_nascimento).isdigit(): 
-        if ano_atual - ano_nascimento < 14 or ano_nascimento < 1900:
+    if ano_nascimento.isdigit(): 
+        if ano_atual - int(ano_nascimento) < 14 or int(ano_nascimento) < 1900:
             return False
         return True
     return False
