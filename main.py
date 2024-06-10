@@ -12,17 +12,17 @@ while continuar:
     #verifica se o ano de nascimento é válido através da função valida_ano_nasc
     ano_valido = False
     while not ano_valido:
-        ano_nasc = int(input("Ano de nascimento: "))
+        ano_nasc = input("Ano de nascimento: ")
         if funcoes.valida_ano_nasc(ano_nasc):
-            idade = date.today().year - ano_nasc
+            idade = date.today().year - int(ano_nasc)
             ano_valido = True
         else:
-            print("Ano da nascimento inválido, tente novamente")
+            print("Informe um ano de nascimento válido, tente novamente")
 
     #verifica se o o ctps informado é igual a 0, se for, vamos direto p menu
     ctps_valido = False
     while not ctps_valido:
-        ctps = str(input("Informe o número de sua carteira de trabalho, apenas números: "))
+        ctps = str(input("Se possuir carteira de trabalho, informe apenas os números (o mesmo do CPF)\nSe não possuir informe 0: "))
         if ctps == "0":
             trabalhador["Nome"] = nome
             trabalhador["Idade"] = idade
