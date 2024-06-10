@@ -15,9 +15,35 @@ def valida_ctps(ctps, dados_trabalhador):
         for v in t.values():
             if ctps == v:
                 return False
-    if str(ctps).isdigit() and len(ctps) == 11:
-        return True
-    return False
+    #verifica se o cpf contém apenas digitos
+    if not ctps.isdigit():
+        return False
+    
+    #verifica se o cpf possui 11 dígitos
+    if len(ctps) != 11:
+        return False
+        
+    # Verifica se todos os dígitos são iguais
+    if ctps == ctps[0] * 11:
+        return False
+
+    #calcula o primeiro dígito verificador  
+    soma = sum(int(ctps[i]) * (10 - i) for i in range(9))
+    primeiro_digito = 11 - soma % 11
+    if primeiro_digito >= 10:
+        primeiro_digito = 0
+    if primeiro_digito != int(ctps[9]):
+        return False
+
+    #calcula o segundo dígito verificador 
+    soma = sum(int(ctps[i]) * (11 - i) for i in range(10))
+    segundo_digito = 11 - soma % 11
+    if segundo_digito >= 10:
+        segundo_digito = 0
+    if segundo_digito != int(ctps[-1]):
+        return False
+        
+    return True
 
 def valida_contratacao(ano_contratacao, ano_nascimento):
     if str(ano_contratacao).isdigit():
